@@ -27,7 +27,7 @@ var showMenu = () => {
 	console.log(
 		'sheetStorage', sheetStorage
 	);
-	var prefix = ((location.host == 'localhost') ? '#' : ((location.host == 'alex2844.github.io') ? '?' : '/')); // hash=#, search=?, pathname=/
+	var prefix = ((location.host == 'localhost') ? '#' : '?'); // hash=#, search=?, pathname=/
 	var snippets = {
 		keyword: 'News and stories around Google products',
 		chrome: 'Articles and insights about new features in Chrome.',
@@ -46,6 +46,9 @@ var showMenu = () => {
 		article.append(item);
 	}
 	var showStoriesForCategory = category => {
+		var active = document.querySelector('.spa-link.active');
+		if (active)
+			active.classList.remove('active');
 		if (category.startsWith('error'))
 			showError(category);
 		else{
@@ -53,6 +56,7 @@ var showMenu = () => {
 			sheetStorage.getItem(category).then(res => res.json).then(stories => {
 				var article = document.querySelector('article');
 				article.innerHTML = '';
+				document.querySelector('.spa-link#spa_'+category).classList.add('active');
 				document.title = 'News about '+(document.querySelector('h1').textContent = stories[0].category);
 				return stories.map(story => {
 					var item = document.importNode(document.querySelector('template#story-item').content, true);
