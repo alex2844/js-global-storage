@@ -34,7 +34,7 @@ var showMenu = () => {
 		search: 'Updates and interesting stories around Google Search'
 	};
 	var getUrl = () => trimSlashes(location[(prefix == '/') ? 'pathname' : ((prefix == '?') ? 'search' : 'hash')]);
-	var trimSlashes = pathName => pathName.replace('/', '').replace('?', '').replace('/', '').replace('#', '');
+	var trimSlashes = pathName => pathName.replace('/', '').replace('?', '').replace('/', '').replace('#', '').replace(/^\./, '');
 	var showError = code => {
 		var article = document.querySelector('article'),
 			code = code.toString().replace(/^error_/, ''),
@@ -81,7 +81,7 @@ var showMenu = () => {
 		showStoriesForCategory(category);
 		var href = evt.target.getAttribute('href');
 		if (prefix == '#')
-			href = href.replace('?', '#').replace('/', '');
+			href = href.replace('?', '#').replace('./', '').replace('/', '');
 		history.pushState({ category }, window.title, (href || prefix));
 	});
 	window.addEventListener('popstate', evt => {
