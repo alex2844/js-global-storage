@@ -8,11 +8,12 @@
 ### Installation
 
 #### cdn
+
 ```html
 <script src="https://alex2844.github.io/js-global-storage/dist/js/globalStorage.js"></script>
 ```
 
-### Use
+### Usage
 
 sheetStorage one list
 ```javascript
@@ -35,6 +36,22 @@ sheetStorage all lists
     console.log('sheetStorage', sheetStorage);
 })();
 ```
+
+### API
+
+ - getItem(key)
+ - setItem(key, value)
+ - removeItem(key)
+ - clear()
+ - key(i)
+ - length
+
+### Options
+
+ - url - full url connect
+ - spreadsheet - id (only sheetStorage)
+ - lists - array lists (only sheetStorage)
+ - cookie - enable cookieStorage. Defaults `false`.
 
 ### Todos
 

@@ -26,30 +26,32 @@
 			});
 		}
 		constructor(opts) {
-			if (opts && opts.url) {
-				if (opts.url.indexOf('//docs.google.com/spreadsheets/d/') > -1) {
-					opts.spreadsheet = opts.url.split('/d/')[1].split('/')[0];
-					delete opts.url;
+			if (opts) {
+				if (opts.url) {
+					if (opts.url.indexOf('//docs.google.com/spreadsheets/d/') > -1) {
+						opts.spreadsheet = opts.url.split('/d/')[1].split('/')[0];
+						delete opts.url;
+					}
 				}
+				if (opts.spreadsheet)
+					Object.defineProperty(this, '#cache', {
+						value: new Proxy({}, {
+							get (target, k) {
+								return (localStorage.sheetStorageCache ? JSON.parse(localStorage.sheetStorageCache) : {})[k];
+							},
+							set (target, k, v) {
+								let cache = (localStorage.sheetStorageCache ? JSON.parse(localStorage.sheetStorageCache) : {});
+								cache[k] = {
+									time: Math.round(new Date().getTime()/1000),
+									body: v
+								};
+								localStorage.sheetStorageCache = JSON.stringify(cache);
+								return true;
+							}
+						}),
+						enumerable: false
+					});
 			}
-			if (opts.spreadsheet)
-				Object.defineProperty(this, '#cache', {
-					value: new Proxy({}, {
-						get (target, k) {
-							return (localStorage.sheetStorageCache ? JSON.parse(localStorage.sheetStorageCache) : {})[k];
-						},
-						set (target, k, v) {
-							let cache = (localStorage.sheetStorageCache ? JSON.parse(localStorage.sheetStorageCache) : {});
-							cache[k] = {
-								time: Math.round(new Date().getTime()/1000),
-								body: v
-							};
-							localStorage.sheetStorageCache = JSON.stringify(cache);
-							return true;
-						}
-					}),
-					enumerable: false
-				});
 			Object.defineProperty(this, '#opts', {
 				value: (opts || null),
 				enumerable: false
