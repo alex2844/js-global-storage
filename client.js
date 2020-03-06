@@ -59,7 +59,8 @@ var showMenu = () => {
 					item.querySelector('.card').id = story.id;
 					item.querySelector('h3').textContent = 'by '+story.author;
 					item.querySelector('img').alt = item.querySelector('h2').textContent = story.title;
-					item.querySelector('img').src = 'https://drive.google.com/uc?export=download&id='+story.imgId;
+					// item.querySelector('img').src = 'https://drive.google.com/uc?export=download&id='+story.imgId;
+					item.querySelector('img').src = story.imgUrl;
 					item.querySelector('p').textContent = story.summary;
 					return item;
 				}).forEach(card => article.appendChild(card));
