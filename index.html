@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="QAD CMF Demo" />
+	<meta name="author" content="Alex Smith, https://me.qwedl.com/"/>
+	<title>QAD CMF Demo</title>
+	<style>body,html.spinner body{visibility:hidden}html:after,.spinner:after{content:'';border-radius:50%;border:4px transparent solid;border-top-color:var(--theme,#3F51B5);animation:spinner 1s infinite;position:fixed}html:after{height:40px;width:40px;left:50%;top:50%;margin:-20px 0 0 -20px}@keyframes spinner{to{transform:rotate(360deg)}}</style>
+	<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
+	<link href="https://alex2844.github.io/qad-cmf/dist/css/tablet_light.css" rel="stylesheet" />
+	<noscript><link rel="stylesheet" href="https://alex2844.github.io/qad-cmf/dist/css/tablet_light.css" /></noscript>
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+	<link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+	<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" /></noscript>
+</head>
+<body>
+	<aside>
+		<nav>
+			<a href="/" class="spa-link">The keyword</a>
+			<a href="/?chrome" class="spa-link">Google Chrome</a>
+			<a href="/?search" class="spa-link">Google Search</a>
+		</nav>
+	</aside>
+	<div class="content">
+		<header>
+			<button class="material-icons" onclick="showMenu()" title="Home">menu</button>
+			<h1>globalStorage</h1>
+		</header>
+		<main>
+			<section>
+				<article class="_"></article>
+			</section>
+		</main>
+	</div>
+    <template id="story-item">
+		<div class="card _c">
+			<div class="media" style="--aspect-ratio:16/9;">
+				<img src="" alt="" loading="lazy" />
+			</div>
+			<h2></h2>
+			<h3></h3>
+			<p></p>
+		</div>
+    </template>
+	<template id="error">
+		<div class="card error _c12">
+			<h2 style="display: flex; align-items: center;">
+				<i class="material-icons" style="margin-right: 12px;">error_outline</i>
+				Oops!
+			</h2>
+			<h3></h3>
+		</div>
+	</template>
+	<script src="./src/js/globalStorage.js"></script>
+	<script src="./client.js"></script>
+</body>
+</html>
