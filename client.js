@@ -1,29 +1,11 @@
 window.addEventListener('storage', e => console.log('storage', e));
 window.addEventListener('storage:remote', e => console.log('storage:remote', e));
-/*
-(async () => {
-	window.sheetStorage = await new globalStorage({
-		spreadsheet: '1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k',
-		lists: [{
-			id: 'osikvag',
-			title: 'chrome'
-		}]
-	});
-	console.log(
-		'sheetStorage', sheetStorage
-	);
-	console.log(
-		(await sheetStorage.chrome).json
-	);
-})();
-*/
+
 var showMenu = () => {
 	document.querySelector('aside').dataset.open = true;
 }
 (async () => {
-	window.sheetStorage = await new globalStorage({
-		url: 'https://docs.google.com/spreadsheets/d/1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k/edit#gid=1684217105',
-	});
+	window.sheetStorage = await new globalStorage({ spreadsheet: '1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k' });
 	console.log(
 		'sheetStorage', sheetStorage
 	);
