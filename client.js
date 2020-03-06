@@ -27,13 +27,13 @@ var showMenu = () => {
 	console.log(
 		'sheetStorage', sheetStorage
 	);
-	var prefix = ((location.host == 'localhost') ? '#' : ((location.host == 'alex2844.github.io') ? '?' : '/')); // hash=#, href=?, pathname=/
+	var prefix = ((location.host == 'localhost') ? '#' : ((location.host == 'alex2844.github.io') ? '?' : '/')); // hash=#, search=?, pathname=/
 	var snippets = {
 		keyword: 'News and stories around Google products',
 		chrome: 'Articles and insights about new features in Chrome.',
 		search: 'Updates and interesting stories around Google Search'
 	};
-	var getUrl = () => trimSlashes(location[(prefix == '/') ? 'pathname' : ((prefix == '?') ? 'href' : 'hash')]);
+	var getUrl = () => trimSlashes(location[(prefix == '/') ? 'pathname' : ((prefix == '?') ? 'search' : 'hash')]);
 	var trimSlashes = pathName => pathName.replace('/', '').replace('?', '').replace('/', '').replace('#', '');
 	var showError = code => {
 		var article = document.querySelector('article'),
