@@ -33,7 +33,9 @@
 						delete opts.url;
 					}
 				}
-				if (opts.spreadsheet)
+				if (opts.spreadsheet) {
+					if (!opts.proxy && (navigator.userAgent.indexOf('/bots') > -1))
+						opts.proxy = 'https://proxy.fetchcors.workers.dev/';
 					Object.defineProperty(this, '#cache', {
 						value: new Proxy({}, {
 							get (target, k) {
@@ -51,6 +53,7 @@
 						}),
 						enumerable: false
 					});
+				}
 			}
 			Object.defineProperty(this, '#opts', {
 				value: (opts || null),
@@ -80,7 +83,7 @@
 							(this['#opts'].lists = this['#cache'][this['#opts'].spreadsheet].body)
 						))
 						? new Promise((res, rej) => res(this['#opts'].lists))
-						: fetch('https://spreadsheets.google.com/feeds/worksheets/'+this['#opts'].spreadsheet+'/public/basic?alt=json').then(res => {
+						: fetch((this['#opts'].proxy || '')+'https://spreadsheets.google.com/feeds/worksheets/'+this['#opts'].spreadsheet+'/public/basic?alt=json').then(res => {
 							return res.json().then(res => (this['#cache'][this['#opts'].spreadsheet] = res.feed.entry.map(v => ({
 								id: v.id.$t.split('/').slice(-1)[0],
 								title: v.content.$t,
@@ -91,12 +94,14 @@
 						res.forEach(v => Object.defineProperty(this, v.title, {
 							enumerable: true,
 							get() {
+								console.log(v);
 								return this.fetchList(v.id);
 							}
 						}));
+						const self = this;
 						return new Proxy(this, {
 							get (target, k) {
-								return ((!target[k] && (k != 'then')) ? new Promise((res, rej) => rej()) : target[k]);
+								return (((['then', 'getItem'].indexOf(k) == -1) && !target.hasOwnProperty(k)) ? new Promise((res, rej) => rej()) : target[k]);
 							}
 						});
 					});
@@ -115,7 +120,7 @@
 			return (
 				(this['#cache'][this['#opts'].spreadsheet+'/'+id] && ((Math.round(new Date().getTime()/1000) - this['#cache'][this['#opts'].spreadsheet+'/'+id].time) < (60 * 60)))
 				? new Promise((res, rej) => res(this['#cache'][this['#opts'].spreadsheet+'/'+id].body))
-				: fetch('https://spreadsheets.google.com/feeds/cells/'+this['#opts'].spreadsheet+'/'+(id || 'od6')+'/public/values?alt=json').then(res => {
+				: fetch((this['#opts'].proxy || '')+'https://spreadsheets.google.com/feeds/cells/'+this['#opts'].spreadsheet+'/'+(id || 'od6')+'/public/values?alt=json').then(res => {
 					return res.json().then(res => (this['#cache'][this['#opts'].spreadsheet+'/'+id] = (res.feed.entry ? res.feed.entry.reduce((arr, cur) => {
 						while (arr.length < cur.gs$cell.row) {
 							arr.push([]);

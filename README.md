@@ -57,7 +57,6 @@ sheetStorage all lists
 
  - remoteStorage (server api)
  - syncStorage (auth and sync google drive)
- - sheetStorage Googlebot
  - Nodejs
 
 ## Live DEMO

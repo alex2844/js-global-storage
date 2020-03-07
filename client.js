@@ -34,6 +34,8 @@ var showMenu = () => {
 		if (category.startsWith('error'))
 			showError(category);
 		else{
+			var html = document.querySelector('html');
+			html.classList.add('spinner');
 			document.querySelector('meta[name="description"]').setAttribute('content', (snippets[category] || ''));
 			sheetStorage.getItem(category).then(res => res.json).then(stories => {
 				var article = document.querySelector('article');
@@ -53,7 +55,7 @@ var showMenu = () => {
 			}).catch(e => {
 				console.error(e);
 				showError(404);
-			});
+			}).then(() => html.classList.remove('spinner'));
 		}
 	}
 	window.addEventListener('click', evt => {
