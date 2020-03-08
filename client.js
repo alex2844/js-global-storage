@@ -5,7 +5,14 @@ var showMenu = () => {
 	document.querySelector('aside').dataset.open = true;
 }
 (async () => {
-	window.sheetStorage = await new globalStorage({ spreadsheet: '1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k' });
+	window.sheetStorage = await new globalStorage({
+		spreadsheet: '1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k',
+        lists: [
+			{ id: 'od6', title: 'keyword' },
+			{ id: 'osikvag', title: 'chrome' },
+			{ id: 'oruqm6j', title: 'search' }
+		]
+	});
 	console.log(
 		'sheetStorage', sheetStorage
 	);
@@ -43,12 +50,27 @@ var showMenu = () => {
 				document.querySelector('.spa-link#spa_'+category).classList.add('active');
 				document.title = 'News about '+(document.querySelector('h1').textContent = stories[0].category);
 				return stories.map(story => {
-					var item = document.importNode(document.querySelector('template#story-item').content, true);
+					var item = document.importNode(document.querySelector('template#story-item').content, true),
+						imgEl = item.querySelector('img');
 					item.querySelector('.card').id = story.id;
 					item.querySelector('h3').textContent = 'by '+story.author;
-					item.querySelector('img').alt = item.querySelector('h2').textContent = story.title;
-					// item.querySelector('img').src = 'https://drive.google.com/uc?export=download&id='+story.imgId;
-					item.querySelector('img').src = story.imgUrl;
+					imgEl.alt = item.querySelector('h2').textContent = story.title;
+					if (story.imgUrl) {
+						imgEl.src = story.imgUrl;
+						imgEl.srcset = [
+							story.imgUrl+'=w100 100w',
+							story.imgUrl+'=w200 200w',
+							story.imgUrl+'=w300 300w',
+							story.imgUrl+'=w400 400w'
+						].join(', ');
+						imgEl.sizes = [
+							'(max-width: 479px) 100vw',
+							'(max-width: 839px) 50vw',
+							'(max-width: 1024px) 33vw',
+							'25vw'
+						].join(', ');
+					}else
+						imgEl.src = 'https://drive.google.com/uc?export=download&id='+story.imgId;
 					item.querySelector('p').textContent = story.summary;
 					return item;
 				}).forEach(card => article.appendChild(card));

@@ -94,14 +94,13 @@
 						res.forEach(v => Object.defineProperty(this, v.title, {
 							enumerable: true,
 							get() {
-								console.log(v);
 								return this.fetchList(v.id);
 							}
 						}));
-						const self = this;
+						const props = Object.getOwnPropertyNames(this.__proto__).concat(['then']);
 						return new Proxy(this, {
 							get (target, k) {
-								return (((['then', 'getItem'].indexOf(k) == -1) && !target.hasOwnProperty(k)) ? new Promise((res, rej) => rej()) : target[k]);
+								return (((props.indexOf(k) == -1) && !target.hasOwnProperty(k)) ? new Promise((res, rej) => rej()) : target[k]);
 							}
 						});
 					});
