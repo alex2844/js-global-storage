@@ -34,7 +34,7 @@
 					}
 				}
 				if (opts.spreadsheet) {
-					if (!opts.proxy && (navigator.userAgent.indexOf('/bots') > -1))
+					if (!opts.proxy && (navigator.userAgent.indexOf('/bot') > -1))
 						opts.proxy = 'https://proxy.fetchcors.workers.dev/';
 					Object.defineProperty(this, '#cache', {
 						value: new Proxy({}, {
