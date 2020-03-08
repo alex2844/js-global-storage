@@ -36,6 +36,17 @@
 				if (opts.spreadsheet) {
 					if (!opts.proxy && (navigator.userAgent.indexOf('/bot') > -1))
 						opts.proxy = 'https://proxy.fetchcors.workers.dev/';
+					else if (!document.querySelector('link[href="https://spreadsheets.google.com"]')) {
+						let link = document.createElement('link');
+						link.rel = 'preconnect';
+						link.href = 'https://spreadsheets.google.com';
+						/*
+						link.setAttribute('rel', 'preconnect');
+						link.setAttribute('href', 'https://spreadsheets.google.com');
+						link.setAttribute('crossorigin', '');
+						*/
+						document.getElementsByTagName('head')[0].appendChild(link);
+					}
 					Object.defineProperty(this, '#cache', {
 						value: new Proxy({}, {
 							get (target, k) {
@@ -169,7 +180,7 @@
 		setItem(key, val) {
 			if (this['#opts']) {
 				if (this['#opts'].cookie) {
-					var expires = new Date();
+					let expires = new Date();
 					expires.setTime(expires.getTime()+(1*24*60*60*1000));
 					document.cookie = key+'='+val+';path=/'+';expires='+expires.toUTCString();
 				}

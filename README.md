@@ -15,7 +15,7 @@
 
 ### Usage
 
-sheetStorage one list
+sheetStorage one list (https://drive.google.com/drive/folders/1GSSYCkbtah2jwNWmKA_bPynVYCTZBycS?usp=sharing)
 ```javascript
 (async () => {
     window.sheetStorage = await new globalStorage({
