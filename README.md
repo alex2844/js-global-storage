@@ -59,6 +59,11 @@ sheetStorage all lists
  - syncStorage (auth and sync google drive)
  - Nodejs
 
+## Build
+```
+COMPILER=true DEV=false npm run build
+```
+
 ## Live DEMO
 
 Check a live Demo here https://alex2844.github.io/global-storage/

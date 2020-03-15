@@ -10,20 +10,18 @@ gulp.task('js', done => {
 	let task = gulp.src([
 		'src/js/globalStorage.js'
 	]).pipe(plumber());
-	if (typeof(closureCompiler) != 'undefined')
+	if (process.env.COMPILER != 'false')
 		task = task.pipe(closureCompiler({
 			compilation_level: 'SIMPLE',
 			js_output_file: 'globalStorage.js'
 		}, { platform: ['native', 'java', 'javascript'] }));
 	task.pipe(gulp.dest('dist/js')).on('end', () => done()).pipe(browserSync.stream());
 });
-gulp.task('html', done => {
+gulp.task('html', async () => {
+	if (process.env.DEV != 'true')
+		return;
 	browserSync.init({ server: './' });
 	gulp.watch('src/js/**/*.js', gulp.series('js'));
-	gulp.watch('*.html').on('change', () => {
-		browserSync.reload();
-		done();
-	});
-	done();
+	gulp.watch('*.html').on('change', () => browserSync.reload());
 });
 gulp.task('default', gulp.series('js', 'html'));

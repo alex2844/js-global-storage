@@ -40,11 +40,6 @@
 						let link = document.createElement('link');
 						link.rel = 'preconnect';
 						link.href = 'https://spreadsheets.google.com';
-						/*
-						link.setAttribute('rel', 'preconnect');
-						link.setAttribute('href', 'https://spreadsheets.google.com');
-						link.setAttribute('crossorigin', '');
-						*/
 						document.getElementsByTagName('head')[0].appendChild(link);
 					}
 					Object.defineProperty(this, '#cache', {

@@ -17,9 +17,9 @@
 <body>
 	<aside>
 		<nav>
-			<a href="./" id="spa_keyword" class="spa-link">The keyword</a>
-			<a href="./?chrome" id="spa_chrome" class="spa-link">Google Chrome</a>
-			<a href="./?search" id="spa_search" class="spa-link">Google Search</a>
+			<a href="./" id="spa_keyword" class="spa-link-cat">The keyword</a>
+			<a href="./?chrome" id="spa_chrome" class="spa-link-cat">Google Chrome</a>
+			<a href="./?search" id="spa_search" class="spa-link-cat">Google Search</a>
 		</nav>
 	</aside>
 	<div class="content">
@@ -35,12 +35,32 @@
 	</div>
     <template id="story-item">
 		<div class="card _c">
-			<div class="media" style="--aspect-ratio:16/9;">
-				<img src="" alt="" loading="lazy" />
+			<a href="">
+				<div class="media" style="--aspect-ratio:16/9;">
+					<img src="" alt="" class="spa-link-item" loading="lazy" />
+				</div>
+			</a>
+			<a href="">
+				<h2 class="spa-link-item"></h2>
+			</a>
+			<h3></h3>
+			<p></p>
+			<div class="actions">
+				<a href=""><button class="spa-link-item">Read</button></a>
 			</div>
+		</div>
+    </template>
+    <template id="story-item-one">
+		<div class="_cd4 _ct2 _cp6">
+			<img src="" alt="" loading="lazy" style="max-width: 100%" />
+		</div>
+		<div class="card _cd8 _ct6 _cp6">
 			<h2></h2>
 			<h3></h3>
 			<p></p>
+			<div class="actions">
+				<a href=""><button></button></a>
+			</div>
 		</div>
     </template>
 	<template id="error">
