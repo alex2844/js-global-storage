@@ -29,10 +29,8 @@ var showMenu = () => {
 			code = code.toString().replace(/^error_/, ''),
 			item = document.importNode(document.querySelector('template#error').content, true);
 		item.querySelector('h3').textContent = code;
-		/*
 		if (!getUrl().match('error_'+code))
 			history.pushState(null, window.title, prefix+'error_'+code);
-		*/
 		article.innerHTML = '';
 		article.append(item);
 	}
