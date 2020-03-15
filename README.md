@@ -66,4 +66,4 @@ COMPILER=true DEV=false npm run build
 
 ## Live DEMO
 
-Check a live Demo here https://alex2844.github.io/global-storage/
+Check a live Demo here https://alex2844.github.io/js-global-storage/
