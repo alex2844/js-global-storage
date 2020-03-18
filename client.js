@@ -22,8 +22,10 @@ var showMenu = () => {
 		chrome: 'Articles and insights about new features in Chrome.',
 		search: 'Updates and interesting stories around Google Search'
 	};
-	var getUrl = () => trimSlashes(location[(prefix == '/') ? 'pathname' : ((prefix == '?') ? 'search' : 'hash')]);
-	var trimSlashes = pathName => pathName.replace('/', '').replace('?', '').replace('/', '').replace('#', '').replace(/^\./, '');
+	var getUrl = () => trimSlashes(decodeURIComponent(location[(prefix == '/') ? 'pathname' : ((prefix == '?') ? 'search' : 'hash')]));
+	var trimSlashes = pathName => [
+		/\?(.*?)\?/, '/', '?', '/', '#', /^\./, /\&(.*?)$/, /\+$/
+	].reduce((res, cur) => res.replace(cur, ''), pathName); // pathName.replace(/\?(.*?)\?/, '').replace('/', '').replace('?', '').replace('/', '').replace('#', '').replace(/^\./, '').replace(/\&(.*?)$/, '').replace(/\+$/, '');
 	var showError = code => {
 		var article = document.querySelector('article'),
 			code = code.toString().replace(/^error_/, ''),
