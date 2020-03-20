@@ -30,7 +30,7 @@ let getFiles = () => {
                 id = image.getId();
             files[folder.getName()+'/'+image.getName()] = {
               id: id,
-              url: Drive.Files.get(id).thumbnailLink.split('=s')[0]
+              url: Drive.Files.get(id, { supportsAllDrives: true }).thumbnailLink.split('=s')[0]
             };
 		}
 	}
