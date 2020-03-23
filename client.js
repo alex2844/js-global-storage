@@ -46,6 +46,7 @@ var showMenu = () => {
 			var html = document.querySelector('html');
 			html.classList.add('spinner');
 			document.querySelector('meta[name="description"]').setAttribute('content', (snippets[category] || ''));
+			document.querySelector('link[type="application/rss+xml"]').setAttribute('href', 'https://alex2844.github.io/pages_feeds/feeds/feed_globalStorage_'+category+'.xml');
 			sheetStorage.getItem(category).then(res => res.json).then(stories => {
 				var storyId = getUrl().replace(category, '').replace(/^-/, ''),
 					article = document.querySelector('article');
