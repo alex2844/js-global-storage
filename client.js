@@ -63,7 +63,7 @@ var showMenu = () => {
 							item.querySelector('.card').id = story.id;
 							item.querySelector('h3').textContent = story.time+' (by '+story.author+')';
 							imgEl.alt = item.querySelector('h2').textContent = story.title;
-							imgEl.src = (story.imgUrl || 'https://drive.google.com/uc?export=download&id='+story.imgId);
+							imgEl.src = (story.imgUrl || (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc));
 							item.querySelector('p').textContent = story.summary;
 							item.querySelector('a button').textContent = story.category;
 							item.querySelector('a').href = './'+prefix+category;
@@ -93,7 +93,7 @@ var showMenu = () => {
 								'25vw'
 							].join(', ');
 						}else
-							imgEl.src = 'https://drive.google.com/uc?export=download&id='+story.imgId;
+							imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
 						item.querySelector('p').textContent = story.summary;
 						[].slice.call(item.querySelectorAll('a')).forEach(a => (a.href = './'+prefix+category+'-'+story.id));
 						return item;
