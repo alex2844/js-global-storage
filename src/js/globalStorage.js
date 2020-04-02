@@ -223,7 +223,7 @@
 					}else if ((id === null) && !!window.PasswordCredential)
 						navigator.credentials.get({
 							federated: { providers: [ 'https://accounts.google.com' ] },
-							mode: 'silent'
+							mediation: 'silent'
 						}).then(cred => {
 							if (cred) {
 								switch (cred.type) {

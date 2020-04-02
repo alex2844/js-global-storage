@@ -99,6 +99,12 @@ var showMenu = () => {
 						item.querySelector('h3').textContent = 'by '+story.author;
 						imgEl.alt = item.querySelector('h2').textContent = story.title;
 						if (story.imgUrl) {
+							/*
+							imgEl.onerror = () => {
+								imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
+								imgEl.onerror = null;
+							}
+							*/
 							imgEl.src = story.imgUrl;
 							imgEl.srcset = [
 								story.imgUrl+'=w100 100w',
