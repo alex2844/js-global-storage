@@ -15,13 +15,12 @@ gulp.task('js', done => {
 			compilation_level: 'SIMPLE',
 			js_output_file: 'globalStorage.js'
 		}, { platform: ['native', 'java', 'javascript'] }));
-	task.pipe(gulp.dest('dist/js')).on('end', () => done()).pipe(browserSync.stream());
+	task.pipe(gulp.dest('dist/js')).on('end', () => done());
 });
 gulp.task('html', async () => {
 	if (process.env.DEV != 'true')
 		return;
 	browserSync.init({ server: './' });
 	gulp.watch('src/js/**/*.js', gulp.series('js'));
-	gulp.watch('*.html').on('change', () => browserSync.reload());
 });
 gulp.task('default', gulp.series('js', 'html'));

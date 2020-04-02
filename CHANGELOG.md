@@ -10,9 +10,13 @@ Security in case of vulnerabilities. (Безопасность в случае �
 
 ## [Unreleased]
 
-## [1.1.0] - 2020-03-18
+## [1.0.1] - 2020-04-02
+### Added
+- syncStorage
+
+## [1.0.0] - 2020-03-18
 ### Added
 - Init
 
-[Unreleased]: ../../compare/v1.1.0...HEAD
-[1.1.0]: ../../releases/tag/v1.1.0
+[Unreleased]: ../../compare/v1.0.0...HEAD
+[1.0.0]: ../../releases/tag/v1.0.0

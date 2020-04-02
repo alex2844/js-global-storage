@@ -1,9 +1,9 @@
 # globalStorage
 
-  - localStorage (polyfill)
-  - sessionStorage (polyfill)
-  - cookieStorage
-  - sheetStorage (google spreadsheets)
+* localStorage (polyfill)
+* sessionStorage (polyfill)
+* cookieStorage
+* sheetStorage (google spreadsheets)
 
 ### Installation
 
@@ -39,25 +39,28 @@ sheetStorage all lists
 
 ### API
 
- - getItem(key)
- - setItem(key, value)
- - removeItem(key)
- - clear()
- - key(i)
- - length
+* getItem(key)
+* setItem(key, value)
+* removeItem(key)
+* clear()
+* key(i)
+* length
 
 ### Options
 
- - url - full url connect
- - spreadsheet - id (only sheetStorage)
- - lists - array lists (only sheetStorage)
- - cookie - enable cookieStorage. Defaults `false`.
+* url - full url connect
+* spreadsheet - id (only sheetStorage)
+* lists - array lists (only sheetStorage)
+* cookie - enable cookieStorage. Defaults `false`.
+* default - default config object (only syncStorage). Default `{ welcome: false }`.
+* providers - use providers (only syncStorage)
+* prefix - localStorage prefix (only syncStorage)
 
 ### Todos
 
- - remoteStorage (server api)
- - syncStorage (auth and sync google drive)
- - Nodejs
+* remoteStorage (server api)
+* syncStorage (auth and sync google drive) - cron, events, offline
+* Nodejs
 
 ## Build
 ```

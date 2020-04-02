@@ -13,9 +13,27 @@ var showMenu = () => {
 			{ id: 'oruqm6j', title: 'search' }
 		]
 	});
-	console.log(
-		'sheetStorage', sheetStorage
-	);
+	window.syncStorage = await new globalStorage({
+		default: {
+			favorite: {}
+		},
+		providers: {
+			google: {
+				key: 'AIzaSyDt7ZsW_aS0eal8h-ymtg1j0jt_c7kyh9I',
+				id: '1012347140595-1rofcp855gd4qbfdv73a84t9jvk8jtkg.apps.googleusercontent.com'
+			}
+		},
+		prefix: 'example'
+	});
+	var userIcon = e => {
+		let users = e.users(),
+			btn = document.querySelector('#sync');
+		if (users.length) {
+			btn.classList.remove('material-icons');
+			btn.style.setProperty('--iconURL', 'url('+users[0].iconURL.replace('s96-', 's64-')+')');
+		}else
+			btn.classList.add('material-icons');
+	}
 	var prefix = ((location.host == 'localhost') ? '#' : '?'); // hash=#, search=?, pathname=/
 	var snippets = {
 		keyword: 'News and stories around Google products',
@@ -37,6 +55,7 @@ var showMenu = () => {
 		article.append(item);
 	}
 	var showStoriesForCategory = category => {
+		scrollTo(0, 0);
 		var active = document.querySelector('.spa-link-cat.active');
 		if (active)
 			active.classList.remove('active');
@@ -74,7 +93,8 @@ var showMenu = () => {
 					document.title = 'News about '+(document.querySelector('h1').textContent = stories[0].category);
 					return stories.map(story => {
 						var item = document.importNode(document.querySelector('template#story-item').content, true),
-							imgEl = item.querySelector('img');
+							imgEl = item.querySelector('img'),
+							favEl = item.querySelector('.favorite');
 						item.querySelector('.card').id = story.id;
 						item.querySelector('h3').textContent = 'by '+story.author;
 						imgEl.alt = item.querySelector('h2').textContent = story.title;
@@ -95,6 +115,17 @@ var showMenu = () => {
 						}else
 							imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
 						item.querySelector('p').textContent = story.summary;
+						if (syncStorage.favorite[story.id])
+							favEl.textContent = 'favorite';
+						favEl.onclick = () => {
+							if (favEl.textContent == 'favorite') {
+								syncStorage.getItem('favorite').removeItem(story.id);
+								favEl.textContent = 'favorite_border';
+							}else{
+								syncStorage.getItem('favorite').setItem(story.id, 1);
+								favEl.textContent = 'favorite';
+							}
+						}
 						[].slice.call(item.querySelectorAll('a')).forEach(a => (a.href = './'+prefix+category+'-'+story.id));
 						return item;
 					}).forEach(card => article.appendChild(card));
@@ -133,6 +164,22 @@ var showMenu = () => {
 		if (category == '')
 			category = 'keyword';
 		showStoriesForCategory(category);
+	});
+	console.log(
+		'sheetStorage', sheetStorage
+	);
+	console.log(
+		'syncStorage', syncStorage
+	);
+	console.log(
+		'getItem_2', JSON.stringify(syncStorage['#data'], null, '\t')
+	);
+	userIcon(syncStorage);
+	document.querySelector('#sync').addEventListener('click', () => {
+		if (syncStorage.users().length)
+			alert('Вы уже вошли в аккаунт');
+		else
+			syncStorage.auth().then(e => userIcon(e));
 	});
 	var category = getUrl().split('-')[0];
 	if (category == '')

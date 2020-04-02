@@ -27,6 +27,20 @@
 		<header>
 			<button class="material-icons" onclick="showMenu()" title="Home">menu</button>
 			<h1>globalStorage</h1>
+			<div role="group" aria-label="Настройки">
+				<button id="sync" class="material-icons" title="Авторизация">account_circle</button>
+				<style>
+					#sync:not(.material-icons) {
+						font-size: 0;
+						background-image: var(--iconURL);
+						background-size: cover;
+						background-position: center center;
+						width: 24px;
+						height: 24px !important;
+						border-radius: 50%;
+					}
+				</style>
+			</div>
 		</header>
 		<main>
 			<section>
@@ -48,6 +62,7 @@
 			<p></p>
 			<div class="actions">
 				<a href=""><button class="spa-link-item">Read</button></a>
+				<button class="material-icons favorite">favorite_border</button>
 			</div>
 		</div>
     </template>
@@ -61,6 +76,7 @@
 			<p></p>
 			<div class="actions">
 				<a href=""><button class="spa-link-item"></button></a>
+				<button class="material-icons favorite">favorite_border</button>
 			</div>
 		</div>
     </template>
@@ -80,7 +96,7 @@
 		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 		})(window,document,'script','dataLayer','GTM-TWRZDJG');
-	}, ((navigator.userAgent.indexOf('/bots') > -1) ? 0 : 1500)); // YandexMetrika
+	}, ((navigator.userAgent.indexOf('/bots') > -1) ? 0 : 1500));
 	</script>
 	<script src="./src/js/globalStorage.js"></script>
 	<script src="./client.js"></script>
