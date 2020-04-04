@@ -3,6 +3,10 @@
 	(class globalStorage {
 		globalStorageEvent(opts) {
 			return Object.defineProperties(new CustomEvent(opts.type), {
+				id: {
+					value: this['#broadcast'].name,
+					enumerable: true
+				},
 				key: {
 					value: (opts.key || null),
 					enumerable: true
@@ -70,7 +74,13 @@
 					value: new BroadcastChannel('globalStorageBroadcast:'+this.hash(this['#opts'])),
 					enumerable: false
 				});
-				this['#broadcast'].addEventListener('message', e => window.dispatchEvent(this.globalStorageEvent(e.data)));
+				this['#broadcast'].addEventListener('message', e => {
+					if (this['#opts'].providers) {
+						this['#data'] = JSON.parse(localStorage.getItem('syncStorageCache'+(this['#opts'].prefix ? '_'+this['#opts'].prefix : '')));
+						this.reload();
+					}
+					window.dispatchEvent(this.globalStorageEvent(e.data));
+				});
 			}
 			return this.reload(true);
 		}
@@ -124,7 +134,9 @@
 								value: (localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : [
 									globalStorage.merge(globalStorage.default(this['#opts'].default))
 								]),
-								enumerable: false
+								enumerable: false,
+								writable: true,
+								configurable: true
 							}
 						});
 						return this.auth(null);
@@ -294,7 +306,6 @@
 						);
 						// let data = globalStorage.merge(...(this['#data']).map(d => d.config));
 						this['#data'][0].config = globalStorage.merge(this['#data'][0].config, body.result);
-						this['#data'][0].hash = this.hash(body.result);
 					}else
 						console.log('BODY', body);
 					this.save();
@@ -438,14 +449,14 @@
 			return Object.keys(this)[i];
 		}
 		save(key, oldValue, newValue) {
-			// alert('SAVE');
 			if (key && (oldValue === newValue))
 				return;
-			if ('BroadcastChannel' in window)
+			if (!this['#opts'].providers && ('BroadcastChannel' in window))
 				this['#broadcast'].postMessage({
 					key, oldValue, newValue,
 					url: location.href,
-					type: 'storage:remote'
+					type: 'storage'
+					// type: 'storage:remote'
 				});
 			console.log('SAVE', this);
 			let self = (('path' in this) ? this.path[0] : this);
@@ -457,26 +468,26 @@
 					clearTimeout(self['#timers'].save);
 				self['#timers'].save = setTimeout(() => {
 					localStorage.setItem('syncStorageCache'+(self['#opts'].prefix ? '_'+self['#opts'].prefix : ''), JSON.stringify(self['#data']));
+					if (this['#opts'].providers && ('BroadcastChannel' in window))
+						this['#broadcast'].postMessage({
+							key, oldValue, newValue,
+							url: location.href,
+							type: 'storage'
+							// type: 'storage:remote'
+						});
 					if (self['#timers'].sync)
 						clearTimeout(self['#timers'].sync);
 					self['#timers'].sync = setTimeout(() => {
-						if (('gapi' in window) && gapi.auth2.getAuthInstance().isSignedIn.get()) {
-							let config = self['#data'][0].config;
-							if (this.hash(config) == self['#data'][0].hash) {
-								console.log('hash == hash');
-								return;
-							}
-							console.log('sync', config);
-							for (let i in self['#data']) {
-								self['#data'][i].hash = this.hash(self['#data'][i].config);
-							}
-							gapi.client.request({
-								path: '/upload/drive/v3/files/'+self['#data'][0].id,
-								method: 'PATCH',
-								params: { uploadType: 'media' },
-								body: ((typeof(config) == 'string') ? config : JSON.stringify(config))
-							}).then(() => {}, err => console.log('error sync', err));
-						}
+						if (('gapi' in window) && gapi.auth2.getAuthInstance().isSignedIn.get())
+							self['#data'].forEach(d => {
+								console.log('sync', d.config);
+								gapi.client.request({
+									path: '/upload/drive/v3/files/'+d.id,
+									method: 'PATCH',
+									params: { uploadType: 'media' },
+									body: ((typeof(d.config) == 'string') ? d.config : JSON.stringify(d.config))
+								}).then(() => {}, err => console.log('error sync', err));
+							});
 						delete self['#timers'].sync;
 					}, 2250);
 					delete self['#timers'].save;
@@ -486,7 +497,6 @@
 		static default(config) {
 			return {
 				id: null,
-				hash: null,
 				time: null,
 				user: null,
 				token: {},
