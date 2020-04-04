@@ -20,7 +20,7 @@ gulp.task('js', done => {
 gulp.task('html', async () => {
 	if (process.env.DEV != 'true')
 		return;
-	httpServer.createServer().listen(3000);
+	httpServer.createServer({ cache: -1 }).listen(3000);
 	gulp.watch('src/js/**/*.js', gulp.series('js'));
 });
 gulp.task('default', gulp.series('js', 'html'));
