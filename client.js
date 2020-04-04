@@ -25,11 +25,6 @@ var showMenu = () => {
 		},
 		prefix: 'example'
 	});
-	window.addEventListener('storage', e => {
-		if (e.id != syncStorage['#broadcast'].name)
-			return;
-		console.log(123);
-	});
 	var userIcon = e => {
 		let users = e.users(),
 			btn = document.querySelector('#sync');
@@ -147,6 +142,11 @@ var showMenu = () => {
 			}).then(() => html.classList.remove('spinner'));
 		}
 	}
+	window.addEventListener('storage', e => {
+		if (e.id != syncStorage['#broadcast'].name)
+			return;
+		console.log(123);
+	});
 	window.addEventListener('click', evt => {
 		if ((evt.target.tagName != 'BUTTON') && document.querySelector('aside').dataset.open)
 			delete document.querySelector('aside').dataset.open;
