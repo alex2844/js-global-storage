@@ -12,11 +12,13 @@ Security in case of vulnerabilities. (Безопасность в случае �
 
 ## [1.0.1] - 2020-04-02
 ### Added
-- syncStorage
+* syncStorage
+### Changed
+* browser-sync => http-server
 
 ## [1.0.0] - 2020-03-18
 ### Added
-- Init
+* Init
 
 [Unreleased]: ../../compare/v1.0.0...HEAD
 [1.0.0]: ../../releases/tag/v1.0.0
