@@ -9,12 +9,11 @@
 		"dist/",
 		"src/js/"
 	],
-	"dependencies": {},
 	"devDependencies": {
-		"browser-sync": "^2.26.7",
 		"google-closure-compiler": "^20200204.0.0",
 		"gulp": "^4.0.2",
-		"gulp-plumber": "^1.2.1"
+		"gulp-plumber": "^1.2.1",
+		"http-server": "^0.12.1"
 	},
 	"repository": "https://github.com/alex2844/js-global-storage.git",
 	"author": {
