@@ -1,5 +1,5 @@
 window.addEventListener('storage', e => console.log('storage', e));
-window.addEventListener('storage:remote', e => console.log('storage:remote', e));
+// window.addEventListener('storage:remote', e => console.log('storage:remote', e));
 
 var showMenu = () => {
 	document.querySelector('aside').dataset.open = true;
@@ -24,6 +24,11 @@ var showMenu = () => {
 			}
 		},
 		prefix: 'example'
+	});
+	window.addEventListener('storage', e => {
+		if (e.id != syncStorage['#broadcast'].name)
+			return;
+		console.log(123);
 	});
 	var userIcon = e => {
 		let users = e.users(),
