@@ -4,7 +4,7 @@ const
 	gulp = require('gulp'),
 	plumber = require('gulp-plumber'),
 	closureCompiler = require('google-closure-compiler').gulp(),
-	browserSync = require('browser-sync').create();
+	httpServer = require('http-server');
 
 gulp.task('js', done => {
 	let task = gulp.src([
@@ -20,7 +20,7 @@ gulp.task('js', done => {
 gulp.task('html', async () => {
 	if (process.env.DEV != 'true')
 		return;
-	browserSync.init({ server: './' });
+	httpServer.createServer().listen(3000);
 	gulp.watch('src/js/**/*.js', gulp.series('js'));
 });
 gulp.task('default', gulp.series('js', 'html'));
