@@ -48,9 +48,11 @@ var showMenu = () => {
 		var article = document.querySelector('article'),
 			code = code.toString().replace(/^error_/, ''),
 			item = document.importNode(document.querySelector('template#error').content, true);
-		item.querySelector('h3').textContent = code;
+		document.title = (document.querySelector('h1').textContent = 'Error')+' '+(item.querySelector('h3').textContent = code);
+		/*
 		if (!getUrl().match('error_'+code))
 			history.pushState(null, window.title, prefix+'error_'+code);
+			*/
 		article.innerHTML = '';
 		article.append(item);
 	}
@@ -78,7 +80,8 @@ var showMenu = () => {
 						return stories.map(story => {
 							document.title = (document.querySelector('h1').textContent = story.title)+' by '+story.author;
 							var item = document.importNode(document.querySelector('template#story-item-one').content, true),
-								imgEl = item.querySelector('img');
+								imgEl = item.querySelector('img'),
+								favEl = item.querySelector('.favorite');
 							item.querySelector('.card').id = story.id;
 							item.querySelector('h3').textContent = story.time+' (by '+story.author+')';
 							imgEl.alt = item.querySelector('h2').textContent = story.title;
@@ -86,6 +89,17 @@ var showMenu = () => {
 							item.querySelector('p').textContent = story.summary;
 							item.querySelector('a button').textContent = story.category;
 							item.querySelector('a').href = './'+prefix+category;
+							if (syncStorage.favorite[story.id])
+								favEl.textContent = 'favorite';
+							favEl.onclick = () => {
+								if (favEl.textContent == 'favorite') {
+									syncStorage.getItem('favorite').removeItem(story.id);
+									favEl.textContent = 'favorite_border';
+								}else{
+									syncStorage.getItem('favorite').setItem(story.id, 1);
+									favEl.textContent = 'favorite';
+								}
+							}
 							return item;
 						}).forEach(card => article.appendChild(card));
 				}else{
@@ -143,9 +157,10 @@ var showMenu = () => {
 		}
 	}
 	window.addEventListener('storage', e => {
-		if (e.id != syncStorage['#broadcast'].name)
-			return;
-		console.log(123);
+		if (e.id == syncStorage['#broadcast'].name)
+			[].slice.call(document.querySelectorAll('article .card')).forEach(item => {
+				item.querySelector('.favorite').textContent = (syncStorage.favorite[item.id] ? 'favorite' : 'favorite_border');
+			});
 	});
 	window.addEventListener('click', evt => {
 		if ((evt.target.tagName != 'BUTTON') && document.querySelector('aside').dataset.open)
