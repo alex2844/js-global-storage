@@ -15,6 +15,7 @@ Security in case of vulnerabilities. (Безопасность в случае �
 * syncStorage
 ### Changed
 * browser-sync => http-server
+* gulp js => jsClient && jsLib
 
 ## [1.0.0] - 2020-03-18
 ### Added
