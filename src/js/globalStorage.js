@@ -178,7 +178,7 @@
 				console.log('adding 2 user'); // data-api="/api/auth/token"
 				// gapi.auth2.getAuthInstance().currentUser.get().grantOfflineAccess().then(e => console.log(e));
 			else if (!user)
-				gapi.auth2.getAuthInstance().signIn().then(user => this.users_add(user, res, rej));
+				gapi.auth2.getAuthInstance().signIn().then(user => this.users_add(user, res, rej), err => rej(err));
 			else{
 				let _user_,
 					users = this.users(),
@@ -199,13 +199,26 @@
 				return res(this.fetchFind());
 			}
 		}
+		gapi() {
+			return new Promise((res, rej) => {
+				if ('gapi' in window)
+					return gapi.load('client', () => res());
+				let script = document.createElement('script');
+				script.src = 'https://apis.google.com/js/api.js';
+				script.addEventListener('load', () => gapi.load('client', () => res()));
+				script.addEventListener('error', err => rej(err));
+				document.body.appendChild(script);
+			});
+		}
 		auth(id, res, rej) {
-			if (res && rej)
+			if (res && rej) {
+				// this['#timers'].auth = setTimeout(() => rej('Timeout'), 5000);
 				return gapi.client.init({
 					apiKey: this['#opts'].providers.google.key,
 					clientId: this['#opts'].providers.google.id,
 					scope: 'https://www.googleapis.com/auth/drive.appfolder email profile'
 				}).then(() => {
+					// clearTimeout(this['#timers'].auth);
 					console.log('init', { id });
 					if (id) {
 						const auth2 = gapi.auth2.getAuthInstance();
@@ -222,37 +235,38 @@
 						// this.gapi_cron(this.ttl() ? 0 : (5 * 60 * 1000)).then(() => this._status('auth', 'ready'));
 						res();
 					}
-				}, err => rej(err));
-			else
+				}, err => {
+					// clearTimeout(this['#timers'].auth);
+					rej(err);
+				});
+			}else
 				return new Promise((res, rej) => {
-					if (this.users().length || (id !== null)) {
-						if ('gapi' in window)
-							return gapi.load('client', () => this.auth(id, res, rej));
-						let script = document.createElement('script');
-						script.src = 'https://apis.google.com/js/api.js';
-						script.addEventListener('load', () => gapi.load('client', () => this.auth(id, res, rej)));
-						document.body.appendChild(script);
-					}else if ((id === null) && !!window.PasswordCredential)
-						navigator.credentials.get({
-							federated: { providers: [ 'https://accounts.google.com' ] },
-							mediation: 'silent'
-						}).then(cred => {
-							if (cred) {
-								switch (cred.type) {
-									case 'federated': {
-										switch (cred.provider) {
-											case 'https://accounts.google.com': {
-												return this.auth(cred.id).then(() => res()).catch(() => rej());
-											}
-										}
-									}
-								}
-							}else
-								res();
-						});
+					if (this.users().length || (id !== null))
+						this.gapi().then(() => this.auth(id, res, rej));
+					else if (id === null)
+						this.credentials('silent').then(id => (id ? this.auth(id).then(() => res()).catch(() => rej()) : res()));
 					else
 						res();
-				}).catch(err => console.error(err)).then(() => this.reload());
+				}).then(() => this.reload());
+				// }).catch(err => console.error(err)).then(() => this.reload());
+		}
+		credentials(mode) {
+			return (!window.PasswordCredential ? new Promise((res, rej) => res(null)) : navigator.credentials.get({
+				federated: { providers: [ 'https://accounts.google.com' ] },
+				mediation: mode
+			}).then(cred => {
+				if (!cred)
+					return null;
+				switch (cred.type) {
+					case 'federated': {
+						switch (cred.provider) {
+							case 'https://accounts.google.com': {
+								return cred.id;
+							}
+						}
+					}
+				}
+			}));
 		}
 		fetchFind(restore) {
 			let key = 'syncStorage'+(this['#opts'].prefix ? '_'+this['#opts'].prefix : '');
