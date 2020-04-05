@@ -6,7 +6,7 @@
 		"build": "npx gulp"
 	},
 	"files": [
-		"dist/",
+		"dist/js/globalStorage.js",
 		"src/js/"
 	],
 	"devDependencies": {
