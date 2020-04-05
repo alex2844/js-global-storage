@@ -32,7 +32,7 @@ gulp.task('html', async () => {
 	if (process.env.DEV != 'true')
 		return;
 	httpServer.createServer({ cache: -1 }).listen(3000);
-	gulp.watch('client.js', gulp.series('js_client'));
+	gulp.watch('client*.js', gulp.series('js_client'));
 	gulp.watch('src/js/**/*.js', gulp.series('js_lib'));
 });
 gulp.task('default', gulp.series('js_client', 'js_lib', 'html'));
