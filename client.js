@@ -86,6 +86,10 @@ var showMenu = () => {
 							item.querySelector('h3').textContent = story.time+' (by '+story.author+')';
 							imgEl.alt = item.querySelector('h2').textContent = story.title;
 							imgEl.src = (story.imgUrl || (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc));
+							imgEl.onerror = () => {
+								imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
+								imgEl.onerror = null;
+							}
 							item.querySelector('p').textContent = story.summary;
 							item.querySelector('a button').textContent = story.category;
 							item.querySelector('a').href = './'+prefix+category;
@@ -113,12 +117,11 @@ var showMenu = () => {
 						item.querySelector('h3').textContent = 'by '+story.author;
 						imgEl.alt = item.querySelector('h2').textContent = story.title;
 						if (story.imgUrl) {
-							/*
 							imgEl.onerror = () => {
 								imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
+								imgEl.srcset = '';
 								imgEl.onerror = null;
 							}
-							*/
 							imgEl.src = story.imgUrl;
 							imgEl.srcset = [
 								story.imgUrl+'=w100 100w',
@@ -201,11 +204,24 @@ var showMenu = () => {
 		'getItem_2', JSON.stringify(syncStorage['#data'], null, '\t')
 	);
 	userIcon(syncStorage);
-	document.querySelector('#sync').addEventListener('click', () => {
+	document.querySelector('#sync').addEventListener('click', async () => {
 		if (syncStorage.users().length)
-			alert('Вы уже вошли в аккаунт');
-		else
-			syncStorage.auth().then(e => userIcon(e));
+			alert('Вы уже вошли как '+syncStorage['#data'][0].user.name+' ('+syncStorage['#data'][0].user.id+')');
+		else{
+			syncStorage.auth().then(e => {
+				console.log('Done', e);
+				userIcon(e);
+			}).catch(err => {
+				switch (err.error) {
+					case 'popup_blocked_by_browser': {
+						return alert('Ваш браузер заблокировал всплывающее окно, попробуйте ещё раз');
+					}
+					default: {
+						return console.error(err);
+					}
+				}
+			});
+		}
 	});
 	var category = getUrl().split('-')[0];
 	if (category == '')
