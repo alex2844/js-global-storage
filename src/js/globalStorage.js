@@ -491,19 +491,19 @@
 						});
 					if (self['#timers'].sync)
 						clearTimeout(self['#timers'].sync);
-					self['#timers'].sync = setTimeout(() => {
-						if (('gapi' in window) && gapi.auth2.getAuthInstance().isSignedIn.get())
-							self['#data'].forEach(d => {
-								console.log('sync', d.config);
-								gapi.client.request({
-									path: '/upload/drive/v3/files/'+d.id,
-									method: 'PATCH',
-									params: { uploadType: 'media' },
-									body: ((typeof(d.config) == 'string') ? d.config : JSON.stringify(d.config))
-								}).then(() => {}, err => console.log('error sync', err));
-							});
-						delete self['#timers'].sync;
-					}, 2250);
+					if (('gapi' in window) && gapi.auth2.getAuthInstance().isSignedIn.get())
+						self['#timers'].sync = setTimeout(() => {
+								self['#data'].forEach(d => {
+									console.log('sync', d.config);
+									gapi.client.request({
+										path: '/upload/drive/v3/files/'+d.id,
+										method: 'PATCH',
+										params: { uploadType: 'media' },
+										body: ((typeof(d.config) == 'string') ? d.config : JSON.stringify(d.config))
+									}).then(() => {}, err => console.log('error sync', err));
+								});
+							delete self['#timers'].sync;
+						}, 2250);
 					delete self['#timers'].save;
 				}, 250);
 			}
