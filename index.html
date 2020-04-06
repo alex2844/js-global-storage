@@ -96,8 +96,10 @@
 			? [msg, url, error].join('; ')
 			: (msg+' ('+line+':'+col+':'+(url ? url.split('/').slice(-1).join().split('_')[0] : '')+')')
 		);
-		if (res != 'Script error. (0:0:)')
+		if (res != 'Script error. (0:0:)') {
+			console.error(res);
 			alert(res);
+		}
 		return true;
 	}
 	setTimeout(function() {
