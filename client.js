@@ -33,6 +33,13 @@ var showMenu = () => {
 			btn.style.setProperty('--iconURL', 'url('+users[0].iconURL.replace('s96-', 's64-')+')');
 		}else
 			btn.classList.add('material-icons');
+		return e;
+	}
+	var userFav = e => {
+		[].slice.call(document.querySelectorAll('article .card')).forEach(item => {
+			item.querySelector('.favorite').textContent = (e.favorite[item.id] ? 'favorite' : 'favorite_border');
+		});
+		return e;
 	}
 	var prefix = ((location.host == 'localhost') ? '#' : '?'); // hash=#, search=?, pathname=/
 	var snippets = {
@@ -161,9 +168,7 @@ var showMenu = () => {
 	}
 	window.addEventListener('storage', e => {
 		if (e.id == syncStorage['#broadcast'].name)
-			[].slice.call(document.querySelectorAll('article .card')).forEach(item => {
-				item.querySelector('.favorite').textContent = (syncStorage.favorite[item.id] ? 'favorite' : 'favorite_border');
-			});
+			userFav(e.storageArea);
 	});
 	window.addEventListener('click', evt => {
 		if ((evt.target.tagName != 'BUTTON') && document.querySelector('aside').dataset.open)
@@ -210,7 +215,7 @@ var showMenu = () => {
 		else{
 			syncStorage.auth().then(e => {
 				console.log('Done', e);
-				userIcon(e);
+				userFav(userIcon(e));
 			}).catch(err => {
 				switch (err.error) {
 					case 'popup_blocked_by_browser': {
