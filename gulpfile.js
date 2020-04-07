@@ -10,7 +10,7 @@ gulp.task('js_client', done => {
 	let task = gulp.src([
 		'client.js'
 	]).pipe(plumber());
-	if (process.env.COMPILER != 'false')
+	if (process.env.DEV != 'true')
 		task = task.pipe(closureCompiler({
 			compilation_level: 'SIMPLE',
 			js_output_file: 'client.js'
@@ -21,7 +21,7 @@ gulp.task('js_lib', done => {
 	let task = gulp.src([
 		'src/js/globalStorage.js'
 	]).pipe(plumber());
-	if (process.env.COMPILER != 'false')
+	if (process.env.DEV != 'true')
 		task = task.pipe(closureCompiler({
 			compilation_level: 'SIMPLE',
 			js_output_file: 'globalStorage.js'
