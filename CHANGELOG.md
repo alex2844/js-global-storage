@@ -16,6 +16,7 @@ Security in case of vulnerabilities. (Безопасность в случае �
 ### Changed
 * browser-sync => http-server
 * gulp js => jsClient && jsLib
+* env COMPILER => DEV
 
 ## [1.0.0] - 2020-03-18
 ### Added
