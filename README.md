@@ -59,7 +59,7 @@ sheetStorage all lists
 ### Todos
 
 * remoteStorage (server api)
-* syncStorage (auth and sync google drive) - offline
+* syncStorage (auth and sync google drive) - offline, multiple users
 * authStorage (local and provider auth) - ???
 * Nodejs
 
