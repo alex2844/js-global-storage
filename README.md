@@ -59,7 +59,7 @@ sheetStorage all lists
 ### Todos
 
 * remoteStorage (server api)
-* syncStorage (auth and sync google drive) - cron, offline, hash, { config: null }
+* syncStorage (auth and sync google drive) - offline, hash, { config: null }
 * Nodejs
 
 ## Build
