@@ -76,8 +76,16 @@
 				});
 				this['#broadcast'].addEventListener('message', e => {
 					if (this['#opts'].providers) {
-						this['#data'] = JSON.parse(localStorage.getItem('syncStorageCache'+(this['#opts'].prefix ? '_'+this['#opts'].prefix : '')));
-						this.reload();
+						if (e.data.cron) {
+							if (this['#timers'].cron)
+								clearTimeout(this['#timers'].cron);
+							if (this['#timers'].multitabs)
+								clearTimeout(this['#timers'].multitabs);
+							this['#timers'].multitabs = setTimeout(() => this.cron(), (10 * 60 * 1000));
+						}else{
+							this['#data'] = JSON.parse(localStorage.getItem('syncStorageCache'+(this['#opts'].prefix ? '_'+this['#opts'].prefix : '')));
+							this.reload();
+						}
 					}
 					window.dispatchEvent(this.globalStorageEvent(e.data));
 				});
@@ -244,11 +252,37 @@
 					if (this.users().length || (id !== null))
 						this.gapi().then(() => this.auth(id, res, rej));
 					else if (id === null)
-						this.credentials('silent').then(id => (id ? this.auth(id).then(() => res()).catch(() => rej()) : res()));
+						this.credentials('silent').then(id => (id ? this.auth(id).then(() => res()).catch(() => rej()) : res(null)));
 					else
-						res();
-				}).then(() => this.reload());
+						res(null);
+				}).then(e => ((e !== null) ? this.cron() : this.reload()));
 				// }).catch(err => console.error(err)).then(() => this.reload());
+		}
+		cron() {
+			// return this.reload();
+			return new Promise((res, rej) => {
+				this['#broadcast'].postMessage({ cron: true });
+				if (this['#timers'].cron)
+					clearTimeout(this['#timers'].cron);
+				let delay = (((Math.round(new Date().getTime()/1000) - this['#data'][0].time) > (5 * 60)) ? 0 : (5 * 60 * 1000));
+				if (delay) {
+					console.log('skip wait cron');
+					res(this.reload());
+				}
+				this['#timers'].cron = setTimeout(() => {
+					console.log('Starting periodic sources sync: '+delay);
+					let hash = this.hash(this['#data'][0].config);
+					this.fetchConfigLoad().then(() => {
+						let body = this.reload();
+						if (delay && (hash != this.hash(this['#data'][0].config)))
+							window.dispatchEvent(this.globalStorageEvent({
+								url: location.href,
+								type: 'storage'
+							}));
+						return this.cron(res(body));
+					}).catch(e => rej(e));
+				}, delay);
+			});
 		}
 		credentials(mode) {
 			return (!window.PasswordCredential ? new Promise((res, rej) => res(null)) : navigator.credentials.get({
@@ -286,7 +320,7 @@
 				}).then(body => {
 					if (body.result.files.length) {
 						console.log('find file', body.result.files);
-						res(this.fetchConfigLoad(restore, this['#data'][0].id = body.result.files[0].id));
+						res(this.fetchConfigLoad(restore, (this['#data'][0].id = body.result.files[0].id)));
 					}else
 						gapi.client.request({
 							path: '/drive/v3/files/',
@@ -303,7 +337,7 @@
 				}, err => rej(err));
 			});
 		}
-		fetchConfigLoad(restore) {
+		fetchConfigLoad(restore, merge) {
 			return new Promise((res, rej) => {
 				if (!this['#data'][0].id)
 					return res();
@@ -318,10 +352,11 @@
 							this['#data'][0].config,
 							body.result
 						);
+						this['#data'][0].config = (merge ? globalStorage.merge(this['#data'][0].config, body.result) : Object.assign(this['#data'][0].config, body.result));
 						// let data = globalStorage.merge(...(this['#data']).map(d => d.config));
-						this['#data'][0].config = globalStorage.merge(this['#data'][0].config, body.result);
 					}else
 						console.log('BODY', body);
+					this['#timers'].hash = this.hash(this['#data'][0].config);
 					this.save();
 					return res();
 				}, err => {
@@ -491,19 +526,24 @@
 						});
 					if (self['#timers'].sync)
 						clearTimeout(self['#timers'].sync);
-					if (('gapi' in window) && gapi.auth2.getAuthInstance().isSignedIn.get())
+					let hash = self.hash(self['#data'][0].config);
+					if (self['#timers'].hash == hash)
+						console.log('hash == hash');
+					if (('gapi' in window) && gapi.auth2.getAuthInstance().isSignedIn.get() && (self['#timers'].hash != hash)) {
+						self['#timers'].hash = hash;
 						self['#timers'].sync = setTimeout(() => {
-								self['#data'].forEach(d => {
-									console.log('sync', d.config);
-									gapi.client.request({
-										path: '/upload/drive/v3/files/'+d.id,
-										method: 'PATCH',
-										params: { uploadType: 'media' },
-										body: ((typeof(d.config) == 'string') ? d.config : JSON.stringify(d.config))
-									}).then(() => {}, err => console.log('error sync', err));
-								});
+							self['#data'].forEach(d => {
+								console.log('sync', d.config);
+								gapi.client.request({
+									path: '/upload/drive/v3/files/'+d.id,
+									method: 'PATCH',
+									params: { uploadType: 'media' },
+									body: ((typeof(d.config) == 'string') ? d.config : JSON.stringify(d.config))
+								}).then(() => {}, err => console.log('error sync', err));
+							});
 							delete self['#timers'].sync;
 						}, 2250);
+					}
 					delete self['#timers'].save;
 				}, 250);
 			}
