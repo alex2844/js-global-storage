@@ -23,6 +23,10 @@
 					value: (opts.url || null),
 					enumerable: true
 				},
+				path: {
+					value: (opts.path || []),
+					enumerable: true
+				},
 				storageArea: {
 					value: this,
 					enumerable: true
@@ -458,7 +462,7 @@
 						d[key] = val;
 					}
 					if ('path' in this)
-						self.save(key, oldValue, val);
+						self.save(key, oldValue, val, this.path);
 					return undefined;
 				}
 			}
@@ -481,7 +485,7 @@
 						delete d[key];
 					}
 					if ('path' in this)
-						self.save(key, oldValue, undefined);
+						self.save(key, oldValue, undefined, this.path);
 					return undefined;
 				}
 			}
@@ -497,12 +501,13 @@
 				throw new TypeError("Failed to execute 'key' on 'Storage': 1 argument required, but only 0 present.");
 			return Object.keys(this)[i];
 		}
-		save(key, oldValue, newValue) {
+		save(key, oldValue, newValue, path) {
 			if (key && (oldValue === newValue))
 				return;
 			if (!this['#opts'].providers && ('BroadcastChannel' in window))
 				this['#broadcast'].postMessage({
 					key, oldValue, newValue,
+					path: path.slice(1).map(p => p.id),
 					url: location.href,
 					type: 'storage'
 					// type: 'storage:remote'
@@ -520,6 +525,7 @@
 					if (this['#opts'].providers && ('BroadcastChannel' in window))
 						this['#broadcast'].postMessage({
 							key, oldValue, newValue,
+							path: path.slice(1).map(p => p.id),
 							url: location.href,
 							type: 'storage'
 							// type: 'storage:remote'
