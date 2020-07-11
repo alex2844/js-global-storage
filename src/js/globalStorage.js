@@ -507,7 +507,7 @@
 			if (!this['#opts'].providers && ('BroadcastChannel' in window))
 				this['#broadcast'].postMessage({
 					key, oldValue, newValue,
-					path: path.slice(1).map(p => p.id),
+					path: (path ? path.slice(1).map(p => p.id) : []),
 					url: location.href,
 					type: 'storage'
 					// type: 'storage:remote'
@@ -525,7 +525,7 @@
 					if (this['#opts'].providers && ('BroadcastChannel' in window))
 						this['#broadcast'].postMessage({
 							key, oldValue, newValue,
-							path: path.slice(1).map(p => p.id),
+							path: (path ? path.slice(1).map(p => p.id) : []),
 							url: location.href,
 							type: 'storage'
 							// type: 'storage:remote'
