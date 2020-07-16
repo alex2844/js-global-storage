@@ -289,7 +289,7 @@
 			});
 		}
 		credentials(mode) {
-			return (!window.PasswordCredential ? new Promise((res, rej) => res(null)) : navigator.credentials.get({
+			return ((!window.PasswordCredential || !window.PublicKeyCredential) ? new Promise((res, rej) => res(null)) : navigator.credentials.get({
 				federated: { providers: [ 'https://accounts.google.com' ] },
 				mediation: mode
 			}).then(cred => {
