@@ -110,7 +110,7 @@
 							((Math.round(new Date().getTime()/1000) - this['#cache'][this['#opts'].spreadsheet].time) < (60 * 60)) &&
 							(this['#opts'].lists = this['#cache'][this['#opts'].spreadsheet].body)
 						))
-						? new Promise((res, rej) => res(this['#opts'].lists))
+						? Promise.resolve(this['#opts'].lists)
 						: fetch((this['#opts'].proxy || '')+'https://spreadsheets.google.com/feeds/worksheets/'+this['#opts'].spreadsheet+'/public/basic?alt=json').then(res => {
 							return res.json().then(res => (this['#cache'][this['#opts'].spreadsheet] = res.feed.entry.map(v => ({
 								id: v.id.$t.split('/').slice(-1)[0],
@@ -128,7 +128,7 @@
 						const props = Object.getOwnPropertyNames(this.__proto__).concat(['then']);
 						return new Proxy(this, {
 							get (target, k) {
-								return (((props.indexOf(k) == -1) && !target.hasOwnProperty(k)) ? new Promise((res, rej) => rej()) : target[k]);
+								return (((props.indexOf(k) == -1) && !target.hasOwnProperty(k)) ? Promise.reject() : target[k]);
 							}
 						});
 					});
@@ -289,7 +289,8 @@
 			});
 		}
 		credentials(mode) {
-			return ((!window.PasswordCredential || !window.PublicKeyCredential) ? new Promise((res, rej) => res(null)) : navigator.credentials.get({
+			let is = (!window.PasswordCredential || !window.PublicKeyCredential || navigator.webdriver || !window.chrome || (navigator.userAgent.indexOf('/bots') > -1));
+			return (is ? Promise.resolve(null) : navigator.credentials.get({
 				federated: { providers: [ 'https://accounts.google.com' ] },
 				mediation: mode
 			}).then(cred => {
@@ -375,7 +376,7 @@
 		fetchList(id) {
 			return (
 				(this['#cache'][this['#opts'].spreadsheet+'/'+id] && ((Math.round(new Date().getTime()/1000) - this['#cache'][this['#opts'].spreadsheet+'/'+id].time) < (60 * 60)))
-				? new Promise((res, rej) => res(this['#cache'][this['#opts'].spreadsheet+'/'+id].body))
+				? Promise.resolve(this['#cache'][this['#opts'].spreadsheet+'/'+id].body)
 				: fetch((this['#opts'].proxy || '')+'https://spreadsheets.google.com/feeds/cells/'+this['#opts'].spreadsheet+'/'+(id || 'od6')+'/public/values?alt=json').then(res => {
 					return res.json().then(res => (this['#cache'][this['#opts'].spreadsheet+'/'+id] = (res.feed.entry ? res.feed.entry.reduce((arr, cur) => {
 						while (arr.length < cur.gs$cell.row) {
