@@ -254,7 +254,12 @@
 				return gapi.client.init({
 					apiKey: this['#opts'].providers.google.key,
 					clientId: this['#opts'].providers.google.id,
-					scope: 'https://www.googleapis.com/auth/drive.appfolder email profile'
+					scope: [
+						'https://www.googleapis.com/auth/drive.appfolder',
+						'https://www.googleapis.com/auth/user.emails.read',
+						'https://www.googleapis.com/auth/userinfo.email',
+						'https://www.googleapis.com/auth/userinfo.profile'
+				   ].join(' ')
 				}).then(() => {
 					// clearTimeout(this['#timers'].auth);
 					console.log('init', { id });
@@ -341,7 +346,12 @@
 								type: 'storage'
 							}));
 						return this.cron(res(body));
-					}).catch(e => rej(e));
+					// }).catch(e => this.auth(this['#data'][0].user.id).then(() => this.cron()).catch(rej(e)));
+					// }).catch(e => rej(e));
+					})
+					.catch(e => gapi.auth2.getAuthInstance().signIn({
+						login_hint: this['#data'][0].user.id
+					}).then(() => this.cron(), () => rej(e)));
 				}, delay);
 			});
 		}
