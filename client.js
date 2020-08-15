@@ -167,7 +167,7 @@ var showMenu = () => {
 		}
 	}
 	window.addEventListener('storage', e => {
-		if (e.id == syncStorage['#broadcast'].name)
+		if (e.id == syncStorage['#broadcast'].name) // TODO: fix iphone
 			userFav(e.storageArea);
 	});
 	window.addEventListener('click', evt => {

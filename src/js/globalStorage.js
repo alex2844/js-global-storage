@@ -184,30 +184,56 @@
 		users() {
 			return this['#data'].map(v => v.user).filter(v => v);
 		}
-		users_add(user, res, rej) {
+		users_add(user, token, res, rej) {
 			console.log('add', { user });
 			if (this.users().length)
 				console.log('adding 2 user'); // data-api="/api/auth/token"
 				// gapi.auth2.getAuthInstance().currentUser.get().grantOfflineAccess().then(e => console.log(e));
-			else if (!user)
-				gapi.auth2.getAuthInstance().signIn().then(user => this.users_add(user, res, rej), err => rej(err));
-			else{
-				let _user_,
-					users = this.users(),
-					profile = user.getBasicProfile();
-				let user_ = {
-					id: profile.getEmail(),
-					name: profile.getName(),
-					iconURL: profile.getImageUrl(),
-					provider: 'https://accounts.google.com'
-				};
-				if (!!window.PasswordCredential)
-					navigator.credentials.store(new FederatedCredential(user_));
-				if ((_user_ = (users.length ? users.findIndex(v => (v.id == user_.id)) : 0)) > -1)
-					this['#data'][_user_].user = user_;
+			else if (!user) {
+				if (('corsProxy' in window) && ('gapi' in corsProxy))
+					corsProxy.gapi().then(token => {
+						token.time = Math.round(new Date().getTime()/1000);
+						gapi.client.setToken({
+							access_token: token.access_token
+						});
+						return gapi.client.request({
+							path: 'https://people.googleapis.com/v1/people/me',
+							params: {
+								personFields: 'emailAddresses,names,photos'
+							}
+						}).then(e => this.users_add({
+							id: e.result.emailAddresses[0].value,
+							name: e.result.names[0].displayName,
+							iconURL: e.result.photos[0].url,
+							provider: 'https://accounts.google.com'
+						}, token, res, rej), err => rej(err));
+					});
 				else
-					_user_ = this['#data'].push(globalStorage.merge(globalStorage.default(this['#opts'].default), { user: user_ })) - 1;
-				console.log('USER', user_, _user_);
+					gapi.auth2.getAuthInstance().signIn().then(user => {
+						const profile = user.getBasicProfile();
+						let user_ = {
+							id: profile.getEmail(),
+							name: profile.getName(),
+							iconURL: profile.getImageUrl(),
+							provider: 'https://accounts.google.com'
+						};
+						if (!!window.PasswordCredential)
+							navigator.credentials.store(new FederatedCredential(user_));
+						return this.users_add(user_, null, res, rej);
+					}, err => rej(err));
+			}else{
+				let user_,
+					users = this.users();
+				if ((user_ = (users.length ? users.findIndex(v => (v.id == user.id)) : 0)) > -1) {
+					this['#data'][user_].user = user;
+					if (token)
+						this['#data'][user_].token = token;
+				}else
+					user_ = this['#data'].push(globalStorage.merge(globalStorage.default(this['#opts'].default), {
+						user: user,
+						token: (token || {})
+					})) - 1;
+				console.log('USER', user, user_);
 				return res(this.fetchFind());
 			}
 		}
@@ -235,13 +261,29 @@
 					if (id) {
 						const auth2 = gapi.auth2.getAuthInstance();
 						if (auth2.isSignedIn.get()) {
-							const user = auth2.currentUser.get();
-							if (user.getBasicProfile().getEmail() === id)
-								return this.users_add(user, res, rej);
+							const
+								user = auth2.currentUser.get(),
+								profile = user.getBasicProfile();
+							let user_ = {
+								id: profile.getEmail(),
+								name: profile.getName(),
+								iconURL: profile.getImageUrl(),
+								provider: 'https://accounts.google.com'
+							};
+							if (user_.id === id)
+								return this.users_add(user_, null, res, rej);
 						}
-						auth2.signIn({ login_hint: (id || '') }).then(user => this.users_add(user, res, rej), err => rej(err));
+						auth2.signIn({ login_hint: (id || '') }).then(user => {
+							const profile = user.getBasicProfile();
+							return this.users_add({
+								id: profile.getEmail(),
+								name: profile.getName(),
+								iconURL: profile.getImageUrl(),
+								provider: 'https://accounts.google.com'
+							}, null, res, rej);
+						}, err => rej(err));
 					}else if (!this.users().length)
-						this.users_add(null, res, rej);
+						this.users_add(null, null, res, rej);
 					else{
 						// console.log('gapi_cron', this.ttl());
 						// this.gapi_cron(this.ttl() ? 0 : (5 * 60 * 1000)).then(() => this._status('auth', 'ready'));
@@ -263,14 +305,29 @@
 				// }).catch(err => console.error(err)).then(() => this.reload());
 		}
 		cron() {
+			let time = Math.round(new Date().getTime()/1000);
+			if (this['#data'][0].token.access_token) {
+				if ((this['#data'][0].token.time + this['#data'][0].token.expires_in) > (time + 30))
+					gapi.client.setToken({
+						access_token: this['#data'][0].token.access_token
+					});
+				else if (('corsProxy' in window) && ('gapi' in corsProxy))
+					return corsProxy.gapi().then(token => {
+						token.time = Math.round(new Date().getTime()/1000);
+						gapi.client.setToken({
+							access_token: token.access_token
+						});
+						return this.cron(this['#data'][0].token = token);
+					});
+			}
 			// return this.reload();
 			return new Promise((res, rej) => {
 				this['#broadcast'].postMessage({ cron: true });
 				if (this['#timers'].cron)
 					clearTimeout(this['#timers'].cron);
-				let delay = (((Math.round(new Date().getTime()/1000) - this['#data'][0].time) > (5 * 60)) ? 0 : (5 * 60 * 1000));
+				let delay = (((time - this['#data'][0].time) > (5 * 60)) ? 0 : (5 * 60 * 1000));
 				if (delay) {
-					console.log('skip wait cron');
+					console.log('skip wait cron', delay);
 					res(this.reload());
 				}
 				this['#timers'].cron = setTimeout(() => {
@@ -536,7 +593,7 @@
 					let hash = self.hash(self['#data'][0].config);
 					if (self['#timers'].hash == hash)
 						console.log('hash == hash');
-					if (('gapi' in window) && gapi.auth2.getAuthInstance().isSignedIn.get() && (self['#timers'].hash != hash)) {
+					if (('gapi' in window) && (gapi.auth2.getAuthInstance().isSignedIn.get() || self['#data'][0].token.access_token) && (self['#timers'].hash != hash)) {
 						self['#timers'].hash = hash;
 						self['#timers'].sync = setTimeout(() => {
 							self['#data'].forEach(d => {
