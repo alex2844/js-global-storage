@@ -346,12 +346,11 @@
 								type: 'storage'
 							}));
 						return this.cron(res(body));
-					// }).catch(e => this.auth(this['#data'][0].user.id).then(() => this.cron()).catch(rej(e)));
-					// }).catch(e => rej(e));
-					})
-					.catch(e => gapi.auth2.getAuthInstance().signIn({
-						login_hint: this['#data'][0].user.id
-					}).then(() => this.cron(), () => rej(e)));
+					}).catch(e => {
+						this['#data'][0] = globalStorage.default(this['#data'][0].config);
+						this.save();
+						rej(e);
+					});
 				}, delay);
 			});
 		}
