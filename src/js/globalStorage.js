@@ -261,6 +261,11 @@
 						'https://www.googleapis.com/auth/userinfo.profile'
 				   ].join(' ')
 				}).then(() => {
+					if (('corsProxy' in window) && ('async' in corsProxy) && ('gapiAsync' in corsProxy))
+						corsProxy.gapi = () => corsProxy.async('gapiAsync', {
+							client_id: gapi.auth2.getAuthInstance().ym.Ba.clientId,
+							scope: gapi.auth2.getAuthInstance().ym.Ba.authParameters.scope
+						}).then(d => JSON.parse(d));
 					// clearTimeout(this['#timers'].auth);
 					console.log('init', { id });
 					if (id) {
