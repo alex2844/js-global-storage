@@ -263,8 +263,8 @@
 				}).then(() => {
 					if (('corsProxy' in window) && ('async' in corsProxy) && ('gapiAsync' in corsProxy))
 						corsProxy.gapi = () => corsProxy.async('gapiAsync', {
-							client_id: gapi.auth2.getAuthInstance().ym.Ba.clientId,
-							scope: gapi.auth2.getAuthInstance().ym.Ba.authParameters.scope
+							client_id: this['#opts'].providers.google.id,
+							scope: gapi.auth2.getAuthInstance().getInitialScopes()
 						}).then(d => JSON.parse(d));
 					// clearTimeout(this['#timers'].auth);
 					console.log('init', { id });
