@@ -261,7 +261,7 @@
 						'https://www.googleapis.com/auth/userinfo.profile'
 				   ].join(' ')
 				}).then(() => {
-					if (('corsProxy' in window) && ('async' in corsProxy) && ('gapiAsync' in corsProxy))
+					if (('corsProxy' in window) && corsProxy && ('async' in corsProxy) && ('gapiAsync' in corsProxy))
 						corsProxy.gapi = () => corsProxy.async('gapiAsync', {
 							client_id: this['#opts'].providers.google.id,
 							scope: gapi.auth2.getAuthInstance().getInitialScopes()
@@ -321,7 +321,7 @@
 					gapi.client.setToken({
 						access_token: this['#data'][0].token.access_token
 					});
-				else if (('corsProxy' in window) && ('gapi' in corsProxy))
+				else if (('corsProxy' in window) && corsProxy && ('gapi' in corsProxy))
 					return corsProxy.gapi().then(token => {
 						token.time = Math.round(new Date().getTime()/1000);
 						gapi.client.setToken({
