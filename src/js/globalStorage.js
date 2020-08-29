@@ -190,7 +190,7 @@
 				console.log('adding 2 user'); // data-api="/api/auth/token"
 				// gapi.auth2.getAuthInstance().currentUser.get().grantOfflineAccess().then(e => console.log(e));
 			else if (!user) {
-				if (('corsProxy' in window) && ('gapi' in corsProxy))
+				if (('corsProxy' in window) && corsProxy && ('gapi' in corsProxy))
 					corsProxy.gapi().then(token => {
 						token.time = Math.round(new Date().getTime()/1000);
 						gapi.client.setToken({
