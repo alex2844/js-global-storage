@@ -301,7 +301,17 @@
 					}
 				}, err => {
 					// clearTimeout(this['#timers'].auth);
-					rej(err);
+					if (err.details == 'Cookies are not enabled in current environment.') {
+						this['#data'][0] = globalStorage.default(this['#data'][0].config);
+						Object.defineProperty(this, '#cookies_block', {
+							value: true,
+							enumerable: false
+						});
+						this.save();
+						res(null);
+						console.error(id, err);
+					}else
+						rej(err);
 				});
 			}else
 				return new Promise((res, rej) => {
