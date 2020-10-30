@@ -6,11 +6,15 @@ var showMenu = () => {
 }
 (async () => {
 	window.sheetStorage = await new globalStorage({
-		spreadsheet: '1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k',
+		spreadsheet: '1OyZV0RvQQEIvj5gJJcBHLa3RFrYZ7jNae2G1z407KjM',
         lists: [
-			{ id: 'od6', title: 'keyword' },
-			{ id: 'osikvag', title: 'chrome' },
-			{ id: 'oruqm6j', title: 'search' }
+			{ id: 'od6', title: 'android' },
+			{ id: 'o2zjdup', title: 'chrome' },
+			{ id: 'ojq9k4t', title: 'pixel' },
+			{ id: 'obywv10', title: 'pixelbook' },
+			{ id: 'ockdmec', title: 'chromebooks' },
+			{ id: 'o6dfiv', title: 'chromecast' },
+			{ id: 'oivxt6x', title: 'stadia' }
 		]
 	});
 	window.syncStorage = await new globalStorage({
@@ -43,9 +47,13 @@ var showMenu = () => {
 	}
 	var prefix = ((location.host == 'localhost') ? '#' : '?'); // hash=#, search=?, pathname=/
 	var snippets = {
-		keyword: 'News and stories around Google products',
-		chrome: 'Articles and insights about new features in Chrome.',
-		search: 'Updates and interesting stories around Google Search'
+		android: 'Read the latest news and updates about Android, the world&#39;s most popular mobile platform.',
+		chrome: 'Read the latest news and updates about Chrome, Google&#39;s fast, free web browser for your computer, phone, and tablet.',
+		pixel: 'Find the latest news on Pixel and other devices by Google.',
+		pixelbook: '',
+		chromebooks: 'Read the latest news and updates about Chromebooks, the fast and easy to use laptop that helps you enjoy your favorite apps.',
+		chromecast: 'Read the latest news about Chromecast, which lets you cast your favorite entertainment from your phone, tablet or laptop directly to your TV or speakers.',
+		stadia: 'Read the latest news and updates on Stadia, Google&#39;s new generation gaming platform.'
 	};
 	var getUrl = () => trimSlashes(decodeURIComponent(location[(prefix == '/') ? 'pathname' : ((prefix == '?') ? 'search' : 'hash')]));
 	var trimSlashes = pathName => [
@@ -90,16 +98,15 @@ var showMenu = () => {
 								imgEl = item.querySelector('img'),
 								favEl = item.querySelector('.favorite');
 							item.querySelector('.card').id = story.id;
-							item.querySelector('h3').textContent = story.time+' (by '+story.author+')';
 							imgEl.alt = item.querySelector('h2').textContent = story.title;
-							imgEl.src = (story.imgUrl || (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc));
-							imgEl.onerror = () => {
-								imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
-								imgEl.onerror = null;
-							}
-							item.querySelector('p').textContent = story.summary;
-							item.querySelector('a button').textContent = story.category;
+							if (story.image || story.imgId) {
+								imgEl.alt = item.querySelector('h2').textContent = story.title;
+								imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.image);
+							}else
+								imgEl.parentNode.parentNode.remove();
+							item.querySelector('a button').textContent = category;
 							item.querySelector('a').href = './'+prefix+category;
+							item.querySelector('div.text').innerHTML = story.text;
 							if (syncStorage.favorite[story.id])
 								favEl.textContent = 'favorite';
 							favEl.onclick = () => {
@@ -121,30 +128,12 @@ var showMenu = () => {
 							imgEl = item.querySelector('img'),
 							favEl = item.querySelector('.favorite');
 						item.querySelector('.card').id = story.id;
-						item.querySelector('h3').textContent = 'by '+story.author;
-						imgEl.alt = item.querySelector('h2').textContent = story.title;
-						if (story.imgUrl) {
-							imgEl.onerror = () => {
-								imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
-								imgEl.srcset = '';
-								imgEl.onerror = null;
-							}
-							imgEl.src = story.imgUrl;
-							imgEl.srcset = [
-								story.imgUrl+'=w100 100w',
-								story.imgUrl+'=w200 200w',
-								story.imgUrl+'=w300 300w',
-								story.imgUrl+'=w400 400w'
-							].join(', ');
-							imgEl.sizes = [
-								'(max-width: 479px) 100vw',
-								'(max-width: 839px) 50vw',
-								'(max-width: 1024px) 33vw',
-								'25vw'
-							].join(', ');
+						if (story.image || story.imgId) {
+							imgEl.alt = item.querySelector('h2').textContent = story.title;
+							imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.image);
 						}else
-							imgEl.src = (story.imgId ? 'https://drive.google.com/uc?export=download&id='+story.imgId : story.imgSrc);
-						item.querySelector('p').textContent = story.summary;
+							imgEl.parentNode.parentNode.remove();
+						item.querySelector('p').textContent = story.description;
 						if (syncStorage.favorite[story.id])
 							favEl.textContent = 'favorite';
 						favEl.onclick = () => {
@@ -177,7 +166,7 @@ var showMenu = () => {
 			evt.preventDefault();
 			var category = trimSlashes(evt.target.getAttribute('href'));
 			if (category == '')
-				category = 'keyword';
+				category = 'android';
 			showStoriesForCategory(category);
 			var href = evt.target.getAttribute('href');
 			if (prefix == '#')
@@ -196,7 +185,7 @@ var showMenu = () => {
 	window.addEventListener('popstate', evt => {
 		var category = evt.state ? evt.state.category : getUrl().split('-')[0];
 		if (category == '')
-			category = 'keyword';
+			category = 'android';
 		showStoriesForCategory(category);
 	});
 	console.log(
@@ -230,6 +219,6 @@ var showMenu = () => {
 	});
 	var category = getUrl().split('-')[0];
 	if (category == '')
-		category = 'keyword';
+		category = 'android';
 	showStoriesForCategory(category);
 })();

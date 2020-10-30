@@ -15,12 +15,12 @@
 
 ### Usage
 
-sheetStorage one list (https://docs.google.com/spreadsheets/d/1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k/edit?usp=sharing)
+sheetStorage one list (https://docs.google.com/spreadsheets/d/1OyZV0RvQQEIvj5gJJcBHLa3RFrYZ7jNae2G1z407KjM/edit?usp=sharing)
 ```javascript
 (async () => {
     window.sheetStorage = await new globalStorage({
-        spreadsheet: '1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k',
-        lists: [{ id: 'osikvag', title: 'chrome' }]
+        spreadsheet: '1OyZV0RvQQEIvj5gJJcBHLa3RFrYZ7jNae2G1z407KjM',
+        lists: [{ id: 'o2zjdup', title: 'chrome' }]
     });
     console.log('sheetStorage', sheetStorage);
     console.log((await sheetStorage.chrome).json);
@@ -31,7 +31,7 @@ sheetStorage all lists
 ```javascript
 (async () => {
     window.sheetStorage = await new globalStorage({
-        url: 'https://docs.google.com/spreadsheets/d/1gONg1oQAdScmV0ueqIzJiwybSCBjVN3CFvDFfMLS67k/edit'
+        url: 'https://docs.google.com/spreadsheets/d/1OyZV0RvQQEIvj5gJJcBHLa3RFrYZ7jNae2G1z407KjM/edit'
     });
     console.log('sheetStorage', sheetStorage);
 })();

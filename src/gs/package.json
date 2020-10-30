@@ -1,0 +1,15 @@
+{
+	"main": "app.js",
+	"scripts": {
+		"deploy": "webpack --entry ./global.js --output-path ./ --output-filename polyfill.js && clasp push"
+	},
+	"dependencies": {
+		"js-global-fetch": "^1.5.0",
+		"js-global-xml": "^0.1.0"
+	},
+	"devDependencies": {
+		"@google/clasp": "^2.3.0",
+		"webpack": "^5.2.0",
+		"webpack-cli": "^4.1.0"
+	}
+}
