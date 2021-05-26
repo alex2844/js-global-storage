@@ -34,6 +34,21 @@
 			});
 		}
 		constructor(opts) {
+			let self = this;
+			Object.defineProperty(this, '#storageAvailable', {
+				value: (() => {
+					try {
+						let storage = window.localStorage,
+							x = '__storage_test__';
+						storage.setItem(x, x);
+						storage.removeItem(x);
+						return true;
+					} catch(e) {
+						return false;
+					}
+				})(),
+				enumerable: false
+			});
 			if (opts) {
 				if (opts.url) {
 					if (opts.url.indexOf('//docs.google.com/spreadsheets/d/') > -1) {
@@ -53,15 +68,17 @@
 					Object.defineProperty(this, '#cache', {
 						value: new Proxy({}, {
 							get (target, k) {
-								return (localStorage.sheetStorageCache ? JSON.parse(localStorage.sheetStorageCache) : {})[k];
+								return ((self['#storageAvailable'] && localStorage.sheetStorageCache) ? JSON.parse(localStorage.sheetStorageCache) : {})[k];
 							},
 							set (target, k, v) {
-								let cache = (localStorage.sheetStorageCache ? JSON.parse(localStorage.sheetStorageCache) : {});
-								cache[k] = {
-									time: Math.round(new Date().getTime()/1000),
-									body: v
-								};
-								localStorage.sheetStorageCache = JSON.stringify(cache);
+								if (self['#storageAvailable']) {
+									let cache = (localStorage.sheetStorageCache ? JSON.parse(localStorage.sheetStorageCache) : {});
+									cache[k] = {
+										time: Math.round(new Date().getTime()/1000),
+										body: v
+									};
+									localStorage.sheetStorageCache = JSON.stringify(cache);
+								}
 								return true;
 							}
 						}),

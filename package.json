@@ -1,6 +1,6 @@
 {
 	"name": "js-global-storage",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"description": "Universal localStorage, sessionStorage, cookieStorage, sheetStorage for Nodejs and Browsers",
 	"scripts": {
 		"build": "npx gulp"
