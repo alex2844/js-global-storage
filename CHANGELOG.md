@@ -10,6 +10,10 @@ Security in case of vulnerabilities. (Безопасность в случае �
 
 ## [Unreleased]
 
+## [1.0.3] - 2021-06-12
+### Fixed
+* new globalStorage().catch({ details: 'Cookies are not enabled in current environment.' })
+
 ## [1.0.2] - 2021-05-26
 ### Added
 * check storageAvailable
@@ -26,7 +30,8 @@ Security in case of vulnerabilities. (Безопасность в случае �
 ### Added
 * Init
 
-[Unreleased]: ../../compare/v1.0.2...HEAD
+[Unreleased]: ../../compare/v1.0.3...HEAD
+[1.0.3]: ../../releases/tag/v1.0.3
 [1.0.2]: ../../releases/tag/v1.0.2
 [1.0.1]: ../../releases/tag/v1.0.1
 [1.0.0]: ../../releases/tag/v1.0.0

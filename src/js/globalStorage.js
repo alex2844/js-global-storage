@@ -318,6 +318,7 @@
 					}
 				}, err => {
 					// clearTimeout(this['#timers'].auth);
+					/*
 					if (err.details == 'Cookies are not enabled in current environment.') {
 						this['#data'][0] = globalStorage.default(this['#data'][0].config);
 						Object.defineProperty(this, '#cookies_block', {
@@ -328,6 +329,7 @@
 						res(null);
 						console.error(id, err);
 					}else
+					 */
 						rej(err);
 				});
 			}else
@@ -335,7 +337,7 @@
 					if (this.users().length || (id !== null))
 						this.gapi().then(() => this.auth(id, res, rej));
 					else if (id === null)
-						this.credentials('silent').then(id => (id ? this.auth(id).then(() => res()).catch(() => rej()) : res(null)));
+						this.credentials('silent').then(id => (id ? this.auth(id).then(() => res()).catch(err => rej(err)) : res(null)));
 					else
 						res(null);
 				}).then(e => ((e !== null) ? this.cron() : this.reload()));
