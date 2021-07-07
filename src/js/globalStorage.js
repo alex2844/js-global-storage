@@ -477,7 +477,9 @@
 			return (
 				(this['#cache'][this['#opts'].spreadsheet+'/'+id] && ((Math.round(new Date().getTime()/1000) - this['#cache'][this['#opts'].spreadsheet+'/'+id].time) < (60 * 60)))
 				? Promise.resolve(this['#cache'][this['#opts'].spreadsheet+'/'+id].body)
-				: fetch((this['#opts'].proxy || '')+'https://spreadsheets.google.com/feeds/cells/'+this['#opts'].spreadsheet+'/'+(id || 'od6')+'/public/values?alt=json').then(res => {
+				: fetch((this['#opts'].proxy || '')+'https://spreadsheets.google.com/feeds/cells/'+this['#opts'].spreadsheet+'/'+(id || 'od6')+'/public/values?alt=json', {
+					signal: this['#opts'].signal
+				}).then(res => {
 					return res.json().then(res => (this['#cache'][this['#opts'].spreadsheet+'/'+id] = (res.feed.entry ? res.feed.entry.reduce((arr, cur) => {
 						while (arr.length < cur.gs$cell.row) {
 							arr.push([]);

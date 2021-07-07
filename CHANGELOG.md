@@ -10,6 +10,10 @@ Security in case of vulnerabilities. (Безопасность в случае �
 
 ## [Unreleased]
 
+## [1.0.4]
+### Added
+* fetch.signal
+
 ## [1.0.3] - 2021-06-12
 ### Fixed
 * new globalStorage().catch({ details: 'Cookies are not enabled in current environment.' })
