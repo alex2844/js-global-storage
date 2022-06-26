@@ -226,12 +226,16 @@
 						}, token, res, rej), err => rej(err));
 					});
 				else
-					gapi.auth2.getAuthInstance().signIn().then(user => {
-						const profile = user.getBasicProfile();
+					gapi.client.request({
+						path: 'https://people.googleapis.com/v1/people/me',
+						params: {
+							personFields: 'emailAddresses,names,photos'
+						}
+					}).then(e => {
 						let user_ = {
-							id: profile.getEmail(),
-							name: profile.getName(),
-							iconURL: profile.getImageUrl(),
+							id: e.result.emailAddresses[0].value,
+							name: e.result.names[0].displayName,
+							iconURL: e.result.photos[0].url,
 							provider: 'https://accounts.google.com'
 						};
 						if (!!window.PasswordCredential)
@@ -260,62 +264,82 @@
 					return gapi.load('client', () => res());
 				let script = document.createElement('script');
 				script.src = 'https://apis.google.com/js/api.js';
-				script.addEventListener('load', () => gapi.load('client', () => res()));
+				script.addEventListener('load', () => gapi.load('client', () => {
+					if (('corsProxy' in window) && corsProxy && ('async' in corsProxy) && ('gapiAsync' in corsProxy))
+						res();
+					else{
+						let script2 = document.createElement('script');
+						script2.src = 'https://accounts.google.com/gsi/client';
+						script2.addEventListener('load', () => res());
+						script2.addEventListener('error', err => rej(err));
+						document.body.appendChild(script2);
+					}
+				}));
 				script.addEventListener('error', err => rej(err));
 				document.body.appendChild(script);
 			});
 		}
 		auth(id, res, rej) {
 			if (res && rej) {
+				const scope = [
+					'openid', 'profile', 'email',
+					'https://www.googleapis.com/auth/drive.appfolder',
+					'https://www.googleapis.com/auth/user.emails.read',
+					'https://www.googleapis.com/auth/userinfo.email',
+					'https://www.googleapis.com/auth/userinfo.profile'
+				].join(' ');
 				// this['#timers'].auth = setTimeout(() => rej('Timeout'), 5000);
 				return gapi.client.init({
-					apiKey: this['#opts'].providers.google.key,
-					clientId: this['#opts'].providers.google.id,
-					scope: [
-						'https://www.googleapis.com/auth/drive.appfolder',
-						'https://www.googleapis.com/auth/user.emails.read',
-						'https://www.googleapis.com/auth/userinfo.email',
-						'https://www.googleapis.com/auth/userinfo.profile'
-				   ].join(' ')
 				}).then(() => {
 					if (('corsProxy' in window) && corsProxy && ('async' in corsProxy) && ('gapiAsync' in corsProxy))
 						corsProxy.gapi = () => corsProxy.async('gapiAsync', {
 							client_id: this['#opts'].providers.google.id,
-							scope: gapi.auth2.getAuthInstance().getInitialScopes()
+							scope: scope,
 						}).then(d => JSON.parse(d));
-					// clearTimeout(this['#timers'].auth);
-					console.log('init', { id });
-					if (id) {
-						const auth2 = gapi.auth2.getAuthInstance();
-						if (auth2.isSignedIn.get()) {
-							const
-								user = auth2.currentUser.get(),
-								profile = user.getBasicProfile();
-							let user_ = {
-								id: profile.getEmail(),
-								name: profile.getName(),
-								iconURL: profile.getImageUrl(),
-								provider: 'https://accounts.google.com'
-							};
-							if (user_.id === id)
-								return this.users_add(user_, null, res, rej);
-						}
-						auth2.signIn({ login_hint: (id || '') }).then(user => {
-							const profile = user.getBasicProfile();
-							return this.users_add({
-								id: profile.getEmail(),
-								name: profile.getName(),
-								iconURL: profile.getImageUrl(),
-								provider: 'https://accounts.google.com'
-							}, null, res, rej);
-						}, err => rej(err));
-					}else if (!this.users().length)
-						this.users_add(null, null, res, rej);
 					else{
-						// console.log('gapi_cron', this.ttl());
-						// this.gapi_cron(this.ttl() ? 0 : (5 * 60 * 1000)).then(() => this._status('auth', 'ready'));
-						res();
+						return new Promise(res_ => {
+							let time = Math.round(new Date().getTime()/1000);
+							if (this['#data'][0].token.access_token && (this['#data'][0].token.time + this['#data'][0].token.expires_in) > (time + 30)) {
+								gapi.client.setToken({
+									access_token: this['#data'][0].token.access_token
+								});
+								return res_(this['#data'][0].token.access_token);
+							}else{
+								let client = google.accounts.oauth2.initTokenClient({
+									client_id: this['#opts'].providers.google.id,
+									scope: scope,
+									callback: token => {
+										this['#data'][0].token = token;
+										this['#data'][0].token.time = Math.round(new Date().getTime()/1000);
+										return res_(this['#data'][0].token.access_token);
+									}
+								});
+								client.requestAccessToken();
+							}
+						}).then(() => {
+							if (id) {
+								console.log('init', { id });
+								gapi.client.request({
+									path: 'https://people.googleapis.com/v1/people/me',
+									params: {
+										personFields: 'emailAddresses,names,photos'
+									}
+								}).then(e => this.users_add({
+									id: e.result.emailAddresses[0].value,
+									name: e.result.names[0].displayName,
+									iconURL: e.result.photos[0].url,
+									provider: 'https://accounts.google.com'
+								}, null, res, rej), err => rej(err));
+							}else if (!this.users().length)
+								this.users_add(null, null, res, rej);
+							else{
+								// console.log('gapi_cron', this.ttl());
+								// this.gapi_cron(this.ttl() ? 0 : (5 * 60 * 1000)).then(() => this._status('auth', 'ready'));
+								res();
+							}
+						});
 					}
+					// clearTimeout(this['#timers'].auth);
 				}, err => {
 					// clearTimeout(this['#timers'].auth);
 					/*
@@ -638,7 +662,7 @@
 					let hash = self.hash(self['#data'][0].config);
 					if (self['#timers'].hash == hash)
 						console.log('hash == hash');
-					if (('gapi' in window) && (gapi.auth2.getAuthInstance().isSignedIn.get() || self['#data'][0].token.access_token) && (self['#timers'].hash != hash)) {
+					if (('gapi' in window) && self['#data'][0].token.access_token && (self['#timers'].hash != hash)) {
 						self['#timers'].hash = hash;
 						self['#timers'].sync = setTimeout(() => {
 							self['#data'].forEach(d => {
